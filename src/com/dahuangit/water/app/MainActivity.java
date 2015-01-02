@@ -1,13 +1,21 @@
 package com.dahuangit.water.app;
 
+import java.util.Properties;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.webkit.CookieManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+@SuppressLint("NewApi")
 public class MainActivity extends Activity {
+	private static final String TAG = MainActivity.class.getSimpleName();
+
 	private WebView webview;
 
 	@Override
@@ -16,10 +24,18 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		webview = (WebView) findViewById(R.id.webview);
-		// 设置WebView属性，能够执行Javascript脚本
 		webview.getSettings().setJavaScriptEnabled(true);
+
+		Properties prop = new Properties();
+
+		try {
+			prop.load(getAssets().open("config.properties"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		// 加载需要显示的网页
-		webview.loadUrl("http://192.168.1.102:8080/water/spring/mobile/index");
+		webview.loadUrl(prop.getProperty("server.url"));
 		// 设置Web视图
 		webview.setWebViewClient(new HelloWebViewClient());
 	}
@@ -45,12 +61,11 @@ public class MainActivity extends Activity {
 			view.loadUrl(url);
 			return true;
 		}
+
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		//getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
