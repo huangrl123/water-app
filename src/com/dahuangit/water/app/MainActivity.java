@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
 		// 不做任何动作
-		if ((keyCode == KeyEvent.KEYCODE_BACK) && webview.canGoBack()) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
 			String title = webview.getTitle();
 			if ("功能列表".equals(title)) {
 				android.app.AlertDialog.Builder b = new AlertDialog.Builder(this);
@@ -71,15 +71,15 @@ public class MainActivity extends Activity {
 						dialog.cancel();
 					}
 				});
-				
+
 				b.show();
+			} else if ("用户登录".equals(title)) {
+				finish();
 			} else {
 				webview.goBack();// 返回前一个页面
 			}
 
 			return true;
-		} else {
-			finish();
 		}
 
 		return false;
