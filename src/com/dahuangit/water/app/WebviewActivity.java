@@ -52,6 +52,7 @@ public class WebviewActivity extends Activity {
 					public void onClick(DialogInterface dialog, int which) {
 						finish();
 						Intent in = new Intent(getApplicationContext(), MainActivity.class);
+						in.putExtra("isFromWeb", "true");
 						startActivity(in);
 					}
 				});

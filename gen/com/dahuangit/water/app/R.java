@@ -21,20 +21,25 @@ public final class R {
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
-        public static final int login_bg=0x7f020001;
-        public static final int login_btn=0x7f020002;
-        public static final int login_ing_btn=0x7f020003;
-        public static final int login_select=0x7f020004;
+        public static final int checkbox_selector=0x7f020000;
+        public static final int checked=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int login_bg=0x7f020003;
+        public static final int login_btn=0x7f020004;
+        public static final int login_ing_btn=0x7f020005;
+        public static final int login_select=0x7f020006;
+        public static final int unchecked=0x7f020007;
     }
     public static final class id {
         public static final int accountEditText=0x7f090001;
-        public static final int action_settings=0x7f090006;
+        public static final int action_settings=0x7f090008;
+        public static final int autoLoginCheckBox=0x7f090005;
         public static final int linearLayout01=0x7f090000;
-        public static final int login_btn=0x7f090004;
+        public static final int login_btn=0x7f090006;
         public static final int passwordEditText=0x7f090003;
+        public static final int rememberCheckBox=0x7f090004;
         public static final int selectUserImg=0x7f090002;
-        public static final int webview=0x7f090005;
+        public static final int webview=0x7f090007;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -82,5 +87,6 @@ public final class R {
          */
         public static final int AppTheme=0x7f070001;
         public static final int LoginFormContainer=0x7f070002;
+        public static final int MyCheckBox=0x7f070003;
     }
 }

@@ -1,6 +1,7 @@
 package com.dahuangit.water.app;
 
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,15 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dahuangit.water.app.dao.UserDao;
+import com.dahuangit.water.app.util.DateUtils;
 import com.dahuangit.water.app.util.DialogUtils;
 import com.dahuangit.water.app.util.HttpUtils;
 import com.dahuangit.water.app.util.Response;
@@ -47,6 +52,10 @@ public class MainActivity extends Activity {
 
 	private ImageView selectUserImageView = null;
 
+	private CheckBox rememberCheckBox = null;
+
+	private CheckBox autoLoginCheckBox = null;
+
 	private UserDao userDao = null;
 
 	private final Handler handler = new Handler() {
@@ -57,9 +66,23 @@ public class MainActivity extends Activity {
 			msg.getData();
 			switch (what) {
 			case 1:// 成功
-				String userId = (String) msg.getData().get("userId");
-				String password = (String) msg.getData().get("password");
-				userDao.addUser(userId, password);
+					// 选择记住密码的才保存
+				if (rememberCheckBox.isChecked()) {
+					User u = new User();
+					String userId = (String) msg.getData().get("userId");
+					String password = (String) msg.getData().get("password");
+					u.setUser_id(userId);
+					u.setPassword(password);
+					boolean isAutoLogin = autoLoginCheckBox.isChecked();
+					if (isAutoLogin) {
+						u.setIs_auto_login("1");
+					} else {
+						u.setIs_auto_login("0");
+					}
+
+					u.setLast_login_time(DateUtils.format(new Date()));
+					userDao.addUser(u);
+				}
 
 				finish();
 				Intent in = new Intent(getApplicationContext(), WebviewActivity.class);
@@ -105,6 +128,8 @@ public class MainActivity extends Activity {
 		userIdEditText = (EditText) findViewById(R.id.accountEditText);
 		passwordEditText = (EditText) findViewById(R.id.passwordEditText);
 		selectUserImageView = (ImageView) findViewById(R.id.selectUserImg);
+		rememberCheckBox = (CheckBox) findViewById(R.id.rememberCheckBox);
+		autoLoginCheckBox = (CheckBox) findViewById(R.id.autoLoginCheckBox);
 
 		userDao = new UserDao(MainActivity.this);
 
@@ -182,9 +207,16 @@ public class MainActivity extends Activity {
 
 					public void onClick(DialogInterface dialog, int which) {
 						String userId = list.get(which);
-						String password = userDao.getPasswordByUserId(userId);
+						User u = userDao.getUserByUserId(userId);
 						userIdEditText.setText(userId);
-						passwordEditText.setText(password);
+						passwordEditText.setText(u.getPassword());
+
+						String isAutoLogin = u.getIs_auto_login();
+						if ("0".equals(isAutoLogin)) {
+							autoLoginCheckBox.setChecked(false);
+						} else {
+							autoLoginCheckBox.setChecked(true);
+						}
 						dialog.dismiss();
 					}
 				});
@@ -192,6 +224,47 @@ public class MainActivity extends Activity {
 				historyUserWin.show();
 			}
 		});
+
+		// 记住密码框时间
+		rememberCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton btn, boolean checked) {
+				// 点击取消，会删除数据库中的该记录
+				String userId = userIdEditText.getText().toString();
+
+				if (!checked && !"".equals(userId) && null != userId) {
+					userDao.deleteUser(userId);
+				}
+			}
+		});
+
+		// 启动界面的时候
+		Intent intent = getIntent();
+		if (null == intent) {
+			return;
+		}
+
+		List<String> userIdList = this.userDao.getAllUserId();
+		if (!userIdList.isEmpty()) {
+			this.rememberCheckBox.setChecked(true);
+			String userId = userIdList.get(0);
+			User u = userDao.getUserByUserId(userId);
+			userIdEditText.setText(userId);
+			passwordEditText.setText(u.getPassword());
+
+			String isAutoLogin = u.getIs_auto_login();
+			if ("0".equals(isAutoLogin)) {
+				autoLoginCheckBox.setChecked(false);
+			} else {
+				autoLoginCheckBox.setChecked(true);
+
+				String isFromWeb = intent.getStringExtra("isFromWeb");
+				if (null == isFromWeb) {
+					this.loginBtn.performClick();
+				}
+			}
+		}
+
 	}
 
 	/**

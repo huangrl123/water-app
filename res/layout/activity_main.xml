@@ -32,7 +32,7 @@
                     android:layout_height="wrap_content"
                     android:text="账号"
                     android:textColor="#FFFFFF"
-                    android:textSize="36px" />
+                    android:textSize="42px" />
 
                 <EditText
                     android:id="@+id/accountEditText"
@@ -45,7 +45,7 @@
                     android:singleLine="true"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#ACBDCF"
-                    android:textSize="32px"
+                    android:textSize="42px"
                     android:width="450px" />
 
                 <ImageView
@@ -65,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:text="密码"
                     android:textColor="#FFFFFF"
-                    android:textSize="36px" />
+                    android:textSize="42px" />
 
                 <EditText
                     android:id="@+id/passwordEditText"
@@ -78,8 +78,34 @@
                     android:singleLine="true"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#ACBDCF"
-                    android:textSize="32px"
+                    android:textSize="42px"
                     android:width="450px" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp" >
+
+                <CheckBox
+                    android:id="@+id/rememberCheckBox"
+                    style="@style/MyCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="记住密码"
+                    android:textColor="#ACBDCF"
+                    android:textSize="32px" />
+
+                <CheckBox
+                    android:id="@+id/autoLoginCheckBox"
+                    style="@style/MyCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="自动登录"
+                    android:textColor="#ACBDCF"
+                    android:textSize="32px" />
             </LinearLayout>
 
             <LinearLayout
