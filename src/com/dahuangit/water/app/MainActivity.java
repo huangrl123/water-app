@@ -225,15 +225,28 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		// 记住密码框时间
+		// 记住密码框事件
 		rememberCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean checked) {
 				// 点击取消，会删除数据库中的该记录
 				String userId = userIdEditText.getText().toString();
 
-				if (!checked && !"".equals(userId) && null != userId) {
-					userDao.deleteUser(userId);
+				if (!checked) {
+					autoLoginCheckBox.setChecked(false);
+					if (!"".equals(userId) && null != userId) {
+						userDao.deleteUser(userId);
+					}
+				}
+			}
+		});
+
+		// 自动登录框事件
+		autoLoginCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton btn, boolean checked) {
+				if (checked) {
+					rememberCheckBox.setChecked(true);
 				}
 			}
 		});
