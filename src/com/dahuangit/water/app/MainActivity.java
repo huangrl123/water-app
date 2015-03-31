@@ -66,7 +66,13 @@ public class MainActivity extends Activity {
 			msg.getData();
 			switch (what) {
 			case 1:// 成功
-					// 选择记住密码的才保存
+				Response response = (Response) msg.getData().get("response");
+				if(!response.getSuccess()) {
+					Toast.makeText(MainActivity.this, response.getMsg(), Toast.LENGTH_SHORT).show();
+					break;
+				}
+				
+				// 选择记住密码的才保存
 				if (rememberCheckBox.isChecked()) {
 					User u = new User();
 					String userId = (String) msg.getData().get("userId");
@@ -91,8 +97,7 @@ public class MainActivity extends Activity {
 				break;
 			case 2:// 失败
 				Response r = (Response) msg.getData().get("response");
-				Builder b = DialogUtils.createAlertDialog(MainActivity.this, r.getMsg());
-				b.show();
+				Toast.makeText(MainActivity.this, "网络或者服务器异常", Toast.LENGTH_SHORT).show();
 				break;
 			}
 
@@ -164,12 +169,14 @@ public class MainActivity extends Activity {
 							InitConfig.userId = userId;
 							String host = InitConfig.prop.getProperty("server.login.url");
 							Map<String, String> params = new HashMap<String, String>();
-							params.put("userId", userId);
+							params.put("optNum", userId);
 							params.put("password", password);
 
 							String xml = HttpUtils.getHttpRequestContent(host, params);
 							Response response = XmlUtils.xml2obj(InitConfig.mapping, xml, Response.class);
 
+							InitConfig.systemId = response.getSystemId();
+							
 							msg.what = 1;
 							Bundle data = new Bundle();
 							data.putSerializable("response", response);

@@ -85,4 +85,12 @@ public class UserDao extends BaseDao {
 	public void deleteUser(String userId) {
 		this.delete("t_user", "user_id=?", new String[] { userId });
 	}
+
+	public void updateUser(User user) {
+		ContentValues values = new ContentValues();
+		values.put("password", user.getPassword());
+		values.put("last_login_time", user.getLast_login_time());
+		values.put("is_auto_login", user.getIs_auto_login());
+		this.update("t_user", values, "user_id=?", new String[] { user.getUser_id() });
+	}
 }

@@ -92,7 +92,7 @@
                     style="@style/MyCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="35dp"
                     android:text="记住密码"
                     android:textColor="#ACBDCF"
                     android:textSize="32px" />
@@ -102,7 +102,7 @@
                     style="@style/MyCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginLeft="45dp"
                     android:text="自动登录"
                     android:textColor="#ACBDCF"
                     android:textSize="32px" />

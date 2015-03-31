@@ -31,8 +31,8 @@ public class HttpUtils {
 	public static String getHttpRequestContent(String host, Map<String, String> params) throws Exception {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 
-		httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000);
-		httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 30000);
+		httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
+		httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 10000);
 
 		HttpPost httpost = new HttpPost(host);
 

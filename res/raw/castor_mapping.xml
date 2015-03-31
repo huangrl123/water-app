@@ -7,9 +7,7 @@
         auto-complete="true" >
         <map-to xml="response" />
 
-        <field name="systemId" >
-            <bind-xml name="systemId" />
-        </field>
+        <field name="systemId" />
         <field
             name="success"
             type="boolean" />
