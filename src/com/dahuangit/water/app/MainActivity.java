@@ -22,20 +22,20 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dahuangit.water.app.dao.UserDao;
 import com.dahuangit.water.app.util.DateUtils;
-import com.dahuangit.water.app.util.DialogUtils;
 import com.dahuangit.water.app.util.HttpUtils;
 import com.dahuangit.water.app.util.Response;
 import com.dahuangit.water.app.util.XmlUtils;
@@ -46,17 +46,17 @@ public class MainActivity extends Activity {
 
 	private Button loginBtn = null;
 
-	private EditText userIdEditText = null;
+	private LineEditText userIdEditText = null;
 
-	private EditText passwordEditText = null;
-
-	private ImageView selectUserImageView = null;
+	private LineEditText passwordEditText = null;
 
 	private CheckBox rememberCheckBox = null;
 
 	private CheckBox autoLoginCheckBox = null;
 
 	private UserDao userDao = null;
+
+	private Drawable selectHistoryAcountImg = null;
 
 	private final Handler handler = new Handler() {
 
@@ -67,11 +67,11 @@ public class MainActivity extends Activity {
 			switch (what) {
 			case 1:// 成功
 				Response response = (Response) msg.getData().get("response");
-				if(!response.getSuccess()) {
+				if (!response.getSuccess()) {
 					Toast.makeText(MainActivity.this, response.getMsg(), Toast.LENGTH_SHORT).show();
 					break;
 				}
-				
+
 				// 选择记住密码的才保存
 				if (rememberCheckBox.isChecked()) {
 					User u = new User();
@@ -110,10 +110,56 @@ public class MainActivity extends Activity {
 		}
 	};
 
+	// 选择账号
+	private OnTouchListener account_OnTouch = new OnTouchListener() {
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				int curX = (int) event.getX();
+				if (curX > v.getWidth() - 32) {
+
+					final List<String> list = userDao.getAllUserId();
+					if (list.isEmpty()) {
+						return false;
+					}
+
+					Builder historyUserWin = new AlertDialog.Builder(MainActivity.this);
+					String[] historUserArr = list.toArray(new String[list.size()]);
+					historyUserWin.setItems(historUserArr, new DialogInterface.OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int which) {
+							String userId = list.get(which);
+							User u = userDao.getUserByUserId(userId);
+							userIdEditText.setText(userId);
+							passwordEditText.setText(u.getPassword());
+
+							String isAutoLogin = u.getIs_auto_login();
+							if ("0".equals(isAutoLogin)) {
+								autoLoginCheckBox.setChecked(false);
+							} else {
+								autoLoginCheckBox.setChecked(true);
+							}
+							dialog.dismiss();
+						}
+					});
+
+					historyUserWin.show();
+
+					return false;
+				}
+				break;
+			}
+			return false;
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		final Resources res = getResources();
+		selectHistoryAcountImg = res.getDrawable(R.drawable.login_select);
 
 		// 加载配置文件
 		Properties prop = new Properties();
@@ -130,9 +176,16 @@ public class MainActivity extends Activity {
 		mapping.loadMapping(is);
 		InitConfig.mapping = mapping;
 
-		userIdEditText = (EditText) findViewById(R.id.accountEditText);
-		passwordEditText = (EditText) findViewById(R.id.passwordEditText);
-		selectUserImageView = (ImageView) findViewById(R.id.selectUserImg);
+		userIdEditText = (LineEditText) findViewById(R.id.accountEditText);
+		userIdEditText.setSingleLine();
+		// 设置选择账号时图片的事件
+		userIdEditText.setCompoundDrawablesWithIntrinsicBounds(null, null, selectHistoryAcountImg, null);
+		userIdEditText.setOnTouchListener(account_OnTouch);
+
+		passwordEditText = (LineEditText) findViewById(R.id.passwordEditText);
+		passwordEditText.setSingleLine();
+		passwordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
 		rememberCheckBox = (CheckBox) findViewById(R.id.rememberCheckBox);
 		autoLoginCheckBox = (CheckBox) findViewById(R.id.autoLoginCheckBox);
 
@@ -176,7 +229,7 @@ public class MainActivity extends Activity {
 							Response response = XmlUtils.xml2obj(InitConfig.mapping, xml, Response.class);
 
 							InitConfig.systemId = response.getSystemId();
-							
+
 							msg.what = 1;
 							Bundle data = new Bundle();
 							data.putSerializable("response", response);
@@ -197,38 +250,6 @@ public class MainActivity extends Activity {
 						handler.sendMessage(msg);
 					}
 				}.start();
-			}
-		});
-
-		// 切换账号按钮处理
-		selectUserImageView.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				final List<String> list = userDao.getAllUserId();
-				if (list.isEmpty()) {
-					return;
-				}
-
-				Builder historyUserWin = new AlertDialog.Builder(MainActivity.this);
-				String[] historUserArr = list.toArray(new String[list.size()]);
-				historyUserWin.setItems(historUserArr, new DialogInterface.OnClickListener() {
-
-					public void onClick(DialogInterface dialog, int which) {
-						String userId = list.get(which);
-						User u = userDao.getUserByUserId(userId);
-						userIdEditText.setText(userId);
-						passwordEditText.setText(u.getPassword());
-
-						String isAutoLogin = u.getIs_auto_login();
-						if ("0".equals(isAutoLogin)) {
-							autoLoginCheckBox.setChecked(false);
-						} else {
-							autoLoginCheckBox.setChecked(true);
-						}
-						dialog.dismiss();
-					}
-				});
-
-				historyUserWin.show();
 			}
 		});
 
