@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/login_bg"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/parent"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/accountEditText"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="140dp"
+            android:layout_weight="0.00"
+            android:background="@drawable/top_edittext_bg"
+            android:drawableLeft="@drawable/accout"
+            android:drawablePadding="10dp"
+            android:drawableRight="@drawable/login_select"
+            android:focusable="true"
+            android:hint="请输入账号"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:singleLine="true" />
+
+        <EditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@drawable/bottom_edittext_bg"
+            android:drawableLeft="@drawable/password"
+            android:drawablePadding="10dp"
+            android:hint="请输入密码"
+            android:paddingLeft="15dp"
+            android:singleLine="true" >
+
+            <requestFocus />
+        </EditText>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" >
+
+            <CheckBox
+                android:id="@+id/rememberCheckBox"
+                style="@style/MyCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="20dp"
+                android:text="记住密码"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/autoLoginCheckBox"
+                style="@style/MyCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="20dp"
+                android:text="自动登录"
+                android:textSize="18dp" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/login_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@drawable/login_btn"
+            android:text="登录"
+            android:textColor="#ffffff"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+</LinearLayout>

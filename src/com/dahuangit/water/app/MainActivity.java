@@ -14,17 +14,14 @@ import org.xml.sax.InputSource;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.Message;
 import android.text.InputType;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -151,7 +148,8 @@ public class MainActivity extends Activity {
 				optionsAdapter.notifyDataSetChanged();
 				break;
 			}
-
+			Drawable d = getResources().getDrawable(R.drawable.login_btn);
+			loginBtn.setBackground(d);
 			loginBtn.setText("登录");
 			loginBtn.setEnabled(true);
 		}
@@ -235,7 +233,9 @@ public class MainActivity extends Activity {
 					return;
 				}
 
-				loginBtn.setText("正在登录...");
+				Drawable d = getResources().getDrawable(R.drawable.login_ing);
+				loginBtn.setBackground(d);
+				loginBtn.setText("登录中...");
 				loginBtn.setEnabled(false);
 
 				new Thread() {

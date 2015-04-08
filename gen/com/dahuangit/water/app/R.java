@@ -29,10 +29,11 @@ public final class R {
         public static final int ic_launcher=0x7f020005;
         public static final int login_bg=0x7f020006;
         public static final int login_btn=0x7f020007;
-        public static final int login_select=0x7f020008;
-        public static final int password=0x7f020009;
-        public static final int top_edittext_bg=0x7f02000a;
-        public static final int unchecked=0x7f02000b;
+        public static final int login_ing=0x7f020008;
+        public static final int login_select=0x7f020009;
+        public static final int password=0x7f02000a;
+        public static final int top_edittext_bg=0x7f02000b;
+        public static final int unchecked=0x7f02000c;
     }
     public static final class id {
         public static final int accountEditText=0x7f090001;
