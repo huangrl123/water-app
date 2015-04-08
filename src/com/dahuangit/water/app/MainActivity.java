@@ -1,6 +1,8 @@
 package com.dahuangit.water.app;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,16 +16,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Handler.Callback;
 import android.os.Message;
 import android.text.InputType;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,6 +33,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.dahuangit.water.app.dao.UserDao;
@@ -46,9 +53,9 @@ public class MainActivity extends Activity {
 
 	private Button loginBtn = null;
 
-	private LineEditText userIdEditText = null;
+	private EditText userIdEditText = null;
 
-	private LineEditText passwordEditText = null;
+	private EditText passwordEditText = null;
 
 	private CheckBox rememberCheckBox = null;
 
@@ -56,14 +63,33 @@ public class MainActivity extends Activity {
 
 	private UserDao userDao = null;
 
-	private Drawable selectHistoryAcountImg = null;
+	// PopupWindow对象
+	private PopupWindow selectPopupWindow = null;
+	// 自定义Adapter
+	private OptionsAdapter optionsAdapter = null;
+	// 下拉框选项数据源
+	private ArrayList<String> datas = new ArrayList<String>();;
+	// 下拉框依附组件
+	private LinearLayout parent;
+	// 下拉框依附组件宽度，也将作为下拉框的宽度
+	private int pwidth;
+	// 下拉箭头图片组件
+	private ImageView image;
+	// 恢复数据源按钮
+	private Button button;
+	// 展示所有下拉选项的ListView
+	private ListView listView = null;
+	// 用来处理选中或者删除下拉项消息
+	private Handler selectHistoryLoginInfoHander;
+	// 是否初始化完成标志
+	private boolean flag = false;
 
 	private final Handler handler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
 			int what = msg.what;
-			msg.getData();
+			Bundle data = msg.getData();
 			switch (what) {
 			case 1:// 成功
 				Response response = (Response) msg.getData().get("response");
@@ -99,12 +125,33 @@ public class MainActivity extends Activity {
 				Response r = (Response) msg.getData().get("response");
 				Toast.makeText(MainActivity.this, "网络或者服务器异常", Toast.LENGTH_SHORT).show();
 				break;
+			case 3:// 选中下拉项，下拉框消失
+				int selIndex = data.getInt("selIndex");
+				String userId = datas.get(selIndex);
+				userIdEditText.setText(userId);
+
+				User u = userDao.getUserByUserId(userId);
+				userIdEditText.setText(userId);
+				passwordEditText.setText(u.getPassword());
+				String isAutoLogin = u.getIs_auto_login();
+				if ("0".equals(isAutoLogin)) {
+					autoLoginCheckBox.setChecked(false);
+				} else {
+					autoLoginCheckBox.setChecked(true);
+				}
+
+				dismiss();
+				break;
+			case 4:// 移除下拉项数据
+				int delIndex = data.getInt("delIndex");
+				String deluserId = datas.get(delIndex);
+				userDao.deleteUser(deluserId);
+				datas.remove(delIndex);
+				// 刷新下拉列表
+				optionsAdapter.notifyDataSetChanged();
+				break;
 			}
 
-			Resources resources = MainActivity.this.getResources();
-			Drawable btnDrawable = resources.getDrawable(R.drawable.login_btn);
-			loginBtn.setBackground(btnDrawable);
-			loginBtn.setTextColor(Color.parseColor("#38CBF7"));
 			loginBtn.setText("登录");
 			loginBtn.setEnabled(true);
 		}
@@ -117,34 +164,21 @@ public class MainActivity extends Activity {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				int curX = (int) event.getX();
-				if (curX > v.getWidth() - 32) {
+				if (curX > v.getWidth() - 150) {
 
 					final List<String> list = userDao.getAllUserId();
 					if (list.isEmpty()) {
 						return false;
 					}
 
-					Builder historyUserWin = new AlertDialog.Builder(MainActivity.this);
 					String[] historUserArr = list.toArray(new String[list.size()]);
-					historyUserWin.setItems(historUserArr, new DialogInterface.OnClickListener() {
+					datas.clear();
+					datas.addAll(Arrays.asList(historUserArr));
 
-						public void onClick(DialogInterface dialog, int which) {
-							String userId = list.get(which);
-							User u = userDao.getUserByUserId(userId);
-							userIdEditText.setText(userId);
-							passwordEditText.setText(u.getPassword());
-
-							String isAutoLogin = u.getIs_auto_login();
-							if ("0".equals(isAutoLogin)) {
-								autoLoginCheckBox.setChecked(false);
-							} else {
-								autoLoginCheckBox.setChecked(true);
-							}
-							dialog.dismiss();
-						}
-					});
-
-					historyUserWin.show();
+					if (flag) {
+						// 显示PopupWindow窗口
+						popupWindwShowing();
+					}
 
 					return false;
 				}
@@ -158,9 +192,6 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		final Resources res = getResources();
-		selectHistoryAcountImg = res.getDrawable(R.drawable.login_select);
-
 		// 加载配置文件
 		Properties prop = new Properties();
 		try {
@@ -176,13 +207,10 @@ public class MainActivity extends Activity {
 		mapping.loadMapping(is);
 		InitConfig.mapping = mapping;
 
-		userIdEditText = (LineEditText) findViewById(R.id.accountEditText);
+		userIdEditText = (EditText) findViewById(R.id.accountEditText);
 		userIdEditText.setSingleLine();
-		// 设置选择账号时图片的事件
-		userIdEditText.setCompoundDrawablesWithIntrinsicBounds(null, null, selectHistoryAcountImg, null);
-		userIdEditText.setOnTouchListener(account_OnTouch);
 
-		passwordEditText = (LineEditText) findViewById(R.id.passwordEditText);
+		passwordEditText = (EditText) findViewById(R.id.passwordEditText);
 		passwordEditText.setSingleLine();
 		passwordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -207,11 +235,7 @@ public class MainActivity extends Activity {
 					return;
 				}
 
-				Resources resources = MainActivity.this.getResources();
-				Drawable btnDrawable = resources.getDrawable(R.drawable.login_ing_btn);
-				loginBtn.setBackground(btnDrawable);
 				loginBtn.setText("正在登录...");
-				loginBtn.setTextColor(Color.parseColor("#4092CC"));
 				loginBtn.setEnabled(false);
 
 				new Thread() {
@@ -309,6 +333,78 @@ public class MainActivity extends Activity {
 	}
 
 	/**
+	 * 没有在onCreate方法中调用initWedget()，而是在onWindowFocusChanged方法中调用，
+	 * 是因为initWedget()中需要获取PopupWindow浮动下拉框依附的组件宽度，在onCreate方法中是无法获取到该宽度的
+	 */
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		while (!flag) {
+			initWedget();
+			flag = true;
+		}
+
+	}
+
+	/**
+	 * 初始化界面控件
+	 */
+	private void initWedget() {
+		// 初始化界面组件
+		parent = (LinearLayout) findViewById(R.id.parent);
+
+		// 获取下拉框依附的组件宽度
+		int width = parent.getWidth() - 60;
+		pwidth = width;
+
+		userIdEditText.setOnTouchListener(account_OnTouch);
+
+		// 初始化PopupWindow
+		initPopuWindow();
+	}
+
+	/**
+	 * 初始化PopupWindow
+	 */
+	private void initPopuWindow() {
+
+		// PopupWindow浮动下拉框布局
+		View loginwindow = (View) this.getLayoutInflater().inflate(R.layout.options, null);
+		listView = (ListView) loginwindow.findViewById(R.id.list);
+
+		// 设置自定义Adapter
+		optionsAdapter = new OptionsAdapter(this, handler, datas);
+		listView.setAdapter(optionsAdapter);
+		selectPopupWindow = new PopupWindow(loginwindow, pwidth, LayoutParams.WRAP_CONTENT, true);
+
+		selectPopupWindow.setOutsideTouchable(true);
+
+		// 这一句是为了实现弹出PopupWindow后，当点击屏幕其他部分及Back键时PopupWindow会消失，
+		// 没有这一句则效果不能出来，但并不会影响背景
+		// 本人能力极其有限，不明白其原因，还望高手、知情者指点一下
+		selectPopupWindow.setBackgroundDrawable(new BitmapDrawable());
+	}
+
+	/**
+	 * 显示PopupWindow窗口
+	 * 
+	 * @param popupwindow
+	 */
+	public void popupWindwShowing() {
+		// 将selectPopupWindow作为parent的下拉框显示，并指定selectPopupWindow在Y方向上向上偏移3pix，
+		// 这是为了防止下拉框与文本框之间产生缝隙，影响界面美化
+		// （是否会产生缝隙，及产生缝隙的大小，可能会根据机型、Android系统版本不同而异吧，不太清楚）
+		selectPopupWindow.showAsDropDown(userIdEditText, 0, 1);
+	}
+
+	/**
+	 * PopupWindow消失
+	 */
+	public void dismiss() {
+		selectPopupWindow.dismiss();
+	}
+
+	/**
 	 * 设置回退
 	 */
 	@Override
@@ -326,5 +422,4 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return true;
 	}
-
 }
