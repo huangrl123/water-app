@@ -221,13 +221,13 @@ public class MainActivity extends Activity {
 		loginBtn = (Button) findViewById(R.id.login_btn);
 		loginBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				final String userId = userIdEditText.getText().toString();
+				final String userId = userIdEditText.getText().toString().trim();
 				if (null == userId || "".equals(userId)) {
 					Toast.makeText(MainActivity.this, "账号不为空", Toast.LENGTH_SHORT).show();
 					return;
 				}
 
-				final String password = passwordEditText.getText().toString();
+				final String password = passwordEditText.getText().toString().trim();
 				if (null == password || "".equals(password)) {
 					Toast.makeText(MainActivity.this, "密码不为空", Toast.LENGTH_SHORT).show();
 					return;
@@ -282,7 +282,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean checked) {
 				// 点击取消，会删除数据库中的该记录
-				String userId = userIdEditText.getText().toString();
+				String userId = userIdEditText.getText().toString().trim();
 
 				if (!checked) {
 					autoLoginCheckBox.setChecked(false);
