@@ -64,9 +64,9 @@ public class WebviewActivity extends Activity {
 				b.show();
 			}
 		}, "app");
-		
+
 		progressDialog = ProgressDialog.show(WebviewActivity.this, null, "加载中...", true);
-		
+
 		// 加载需要显示的网页
 		webview.loadUrl(InitConfig.prop.getProperty("server.index.url") + "?systemId=" + InitConfig.systemId);
 	}
@@ -79,37 +79,28 @@ public class WebviewActivity extends Activity {
 
 		// 不做任何动作
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-			String title = webview.getTitle();
-			if ("功能列表".equals(title)) {
-				android.app.AlertDialog.Builder b = new AlertDialog.Builder(this);
-				b.setTitle("提示");
-				b.setMessage("确认退出?");
 
-				b.setPositiveButton("是", new OnClickListener() {
+			android.app.AlertDialog.Builder b = new AlertDialog.Builder(this);
+			b.setTitle("提示");
+			b.setMessage("确认关闭软件?");
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						finish();
-						Intent in = new Intent(getApplicationContext(), MainActivity.class);
-						in.putExtra("isFromWeb", "true");
-						startActivity(in);
-					}
-				});
+			b.setPositiveButton("是", new OnClickListener() {
 
-				b.setNegativeButton("否", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+			});
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				});
+			b.setNegativeButton("否", new OnClickListener() {
 
-				b.show();
-			} else if ("用户登录".equals(title)) {
-				finish();
-			} else {
-				webview.goBack();// 返回前一个页面
-			}
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+				}
+			});
+
+			b.show();
 
 			return true;
 		}
