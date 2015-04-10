@@ -79,28 +79,32 @@ public class WebviewActivity extends Activity {
 
 		// 不做任何动作
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+			String title = webview.getTitle();
+			if ("功能列表".equals(title)) {
+				android.app.AlertDialog.Builder b = new AlertDialog.Builder(this);
+				b.setTitle("提示");
+				b.setMessage("确认关闭软件?");
 
-			android.app.AlertDialog.Builder b = new AlertDialog.Builder(this);
-			b.setTitle("提示");
-			b.setMessage("确认关闭软件?");
+				b.setPositiveButton("是", new OnClickListener() {
 
-			b.setPositiveButton("是", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				});
 
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					finish();
-				}
-			});
+				b.setNegativeButton("否", new OnClickListener() {
 
-			b.setNegativeButton("否", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				});
 
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-				}
-			});
-
-			b.show();
+				b.show();
+			} else {
+				webview.goBack();
+			}
 
 			return true;
 		}
