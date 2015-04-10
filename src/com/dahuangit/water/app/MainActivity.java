@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
 			case 1:// 成功
 				Response response = (Response) msg.getData().get("response");
 				if (!response.getSuccess()) {
-					Toast.makeText(MainActivity.this, response.getMsg(), Toast.LENGTH_SHORT).show();
+					Toast.makeText(MainActivity.this, "输入的账号或密码错误", Toast.LENGTH_SHORT).show();
 					break;
 				}
 
