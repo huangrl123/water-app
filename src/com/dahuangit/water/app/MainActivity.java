@@ -14,6 +14,7 @@ import org.xml.sax.InputSource;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,7 +26,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -84,6 +87,7 @@ public class MainActivity extends Activity {
 	private final Handler handler = new Handler() {
 
 		@Override
+		@SuppressLint("NewApi")
 		public void handleMessage(Message msg) {
 			int what = msg.what;
 			Bundle data = msg.getData();
@@ -220,6 +224,7 @@ public class MainActivity extends Activity {
 		// 登录按钮处理
 		loginBtn = (Button) findViewById(R.id.login_btn);
 		loginBtn.setOnClickListener(new View.OnClickListener() {
+			@SuppressLint("NewApi")
 			public void onClick(View v) {
 				final String userId = userIdEditText.getText().toString().trim();
 				if (null == userId || "".equals(userId)) {
@@ -330,6 +335,45 @@ public class MainActivity extends Activity {
 			}
 		}
 
+		
+		userIdEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			public void onFocusChange(View v, boolean hasFocus) {
+				
+				InputMethodManager  imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+				
+				if (hasFocus) {//如果有焦点就显示软件盘
+					
+					imm.showSoftInputFromInputMethod(userIdEditText.getWindowToken() , 0);
+					
+				} else {//否则就隐藏
+					try {
+						imm.hideSoftInputFromWindow(userIdEditText.getWindowToken(), 0);
+					} catch (Exception e) {
+					}
+				}
+			}
+		});
+		
+		passwordEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+            
+            public void onFocusChange(View v, boolean hasFocus) {
+                 
+            	InputMethodManager  imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                
+                 if (hasFocus) {//如果有焦点就显示软件盘
+                     
+                    imm.showSoftInputFromInputMethod(passwordEditText.getWindowToken() , 0);
+                 
+                 } else {//否则就隐藏
+                    try {
+                        imm.hideSoftInputFromWindow(passwordEditText.getWindowToken(), 0);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        });
+		
 	}
 
 	/**
