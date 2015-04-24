@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -127,7 +128,6 @@ public class WebviewActivity extends Activity {
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			progressDialog.dismiss();
-			super.onPageFinished(view, url);
 		}
 
 		@Override
@@ -136,6 +136,17 @@ public class WebviewActivity extends Activity {
 			super.onReceivedError(view, errorCode, description, failingUrl);
 		}
 
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			progressDialog.show();
+		}
+
+		@Override
+		public void onLoadResource(WebView view, String url) {
+			super.onLoadResource(view, url);
+		}
+
+		
 	}
 
 	@Override
@@ -143,4 +154,5 @@ public class WebviewActivity extends Activity {
 		return true;
 	}
 
+	
 }
